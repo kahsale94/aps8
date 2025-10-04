@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  db:
+    image: postgis/postgis:13-3.1
+    container_name: ecoponto-db
+    environment:
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=ecoponto
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  postgres_data:
