@@ -18,4 +18,14 @@ buildscript {
     }
 }
 
+
 apply plugin: "com.facebook.react.rootproject"
+
+// ADICIONE ESTE BLOCO NO FINAL DO ARQUIVO
+allprojects {
+    configurations.all {
+        resolutionStrategy {
+            force "com.google.android.gms:play-services-location:21.0.1"
+        }
+    }
+}
