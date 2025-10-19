@@ -17,7 +17,7 @@ interface NearbyPointData extends MarkerData {
   distance: number;
 }
 
-const API_URL = 'http://10.0.2.2:3000';
+const API_URL = 'https://us-central1-ecoponto-aps8.cloudfunctions.net/api'; // COLE SUA URL AQUI
 
 // MUDANÇA 1: Definimos a região padrão fora do componente
 const SAO_PAULO_REGION: Region = {
@@ -130,6 +130,23 @@ function App(): React.JSX.Element {
     setListVisible(!isListVisible); // Alterna a visibilidade da lista
   };
 
+  // MUDANÇA 1: Nova função para lidar com o clique em um item da lista
+  const handleListItemPress = (item: MarkerData) => {
+    // 1. Fecha a lista
+    setListVisible(false);
+
+    // 2. Define a região para onde o mapa deve ir
+    const targetRegion: Region = {
+      latitude: item.latitude,
+      longitude: item.longitude,
+      latitudeDelta: 0.01, // Um zoom um pouco mais próximo
+      longitudeDelta: 0.01,
+    };
+
+    // 3. Comanda o mapa para animar até o local
+    mapRef.current?.animateToRegion(targetRegion, 1000); // Anima em 1 segundo
+  };
+
   // --- FUNÇÕES DE MANIPULAÇÃO DO MODAL E FORMULÁRIO ---
   const closeAndResetModal = () => {
     setEditingMarker(null);
@@ -226,6 +243,8 @@ function App(): React.JSX.Element {
         style={styles.map}
         initialRegion={SAO_PAULO_REGION} // O mapa sempre carrega na região padrão
         onPress={handleMapPress}
+        // MUDANÇA 2: Adicionamos a propriedade para mostrar a bolinha azul de localização
+        showsUserLocation={true}
       >
         {markers.map(marker => (
           <Marker key={marker.id} coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}>
@@ -254,11 +273,14 @@ function App(): React.JSX.Element {
               data={nearbyPoints}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
-                <View style={styles.listItem}>
-                  <Text style={styles.listTitle}>{item.title}</Text>
-                  <Text style={styles.listMaterials}>{item.materials.join(', ')}</Text>
-                  <Text style={styles.listDistance}>{item.distance.toFixed(2)} km de distância</Text>
-                </View>
+                // MUDANÇA 3: Envolvemos o item da lista em um Pressable para torná-lo clicável
+                <Pressable onPress={() => handleListItemPress(item)}>
+                  <View style={styles.listItem}>
+                    <Text style={styles.listTitle}>{item.title}</Text>
+                    <Text style={styles.listMaterials}>{item.materials.join(', ')}</Text>
+                    <Text style={styles.listDistance}>{item.distance.toFixed(2)} km de distância</Text>
+                  </View>
+                </Pressable>
               )}
               ListEmptyComponent={<View><Text>Nenhum ponto de coleta encontrado.</Text></View>}
             />
