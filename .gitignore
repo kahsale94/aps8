@@ -1,6 +1,8 @@
 # Ignorar chave de serviço do Firebase
 backend/serviceAccountKey.json
 
+.gitignore
+
 node_modules/
 
 public/
