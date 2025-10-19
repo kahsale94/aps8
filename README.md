@@ -11,7 +11,7 @@ O sistema utiliza uma arquitetura distribuída com um frontend em React Native e
 A maneira mais fácil de testar o aplicativo em um dispositivo Android é instalando o arquivo `.apk` pré-compilado:
 
 1.  **Acesse a Página de Releases:** Vá para a seção [**Releases**](https://github.com/kahsale94/aps8/releases) deste repositório no GitHub.
-2.  **Baixe o APK:** Encontre a versão mais recente e baixe o arquivo `app-debug.apk` (ou `app-release.apk`, se disponível).
+2.  **Baixe o APK:** Encontre a versão mais recente e baixe o arquivo `Ecoponto-Colab.apk`.
 3.  **Transfira para o Celular:** Copie o arquivo `.apk` baixado para o seu celular Android (via cabo USB, Google Drive, etc.).
 4.  **Habilite Fontes Desconhecidas:** No seu celular, vá em **Configurações > Segurança** (ou **Aplicativos > Acesso especial a apps**) e habilite a opção **"Instalar apps desconhecidos"** para o seu gerenciador de arquivos ou navegador (o app que você usará para abrir o APK). *Este passo pode variar dependendo da versão do Android.*
 5.  **Instale o App:** Usando um gerenciador de arquivos no seu celular, encontre o arquivo `.apk` e toque nele para iniciar a instalação. Siga as instruções na tela.
