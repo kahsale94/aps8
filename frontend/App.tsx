@@ -200,7 +200,7 @@ function App(): React.JSX.Element {
   };
 
   const handleMapPress = (event: MapPressEvent) => {
-    const action = event.nativeEvent.action;
+    const action = (event.nativeEvent as any).action;
     if (action === 'marker-press' || action === 'callout-press') return;
     setEditingMarker(null);
     setFormCoordinate(event.nativeEvent.coordinate);
