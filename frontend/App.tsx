@@ -17,9 +17,8 @@ interface NearbyPointData extends MarkerData {
   distance: number;
 }
 
-const API_URL = 'https://us-central1-ecoponto-aps8.cloudfunctions.net/api'; // COLE SUA URL AQUI
+const API_URL = 'https://us-central1-ecoponto-aps8.cloudfunctions.net/api';
 
-// MUDANÇA 1: Definimos a região padrão fora do componente
 const SAO_PAULO_REGION: Region = {
   latitude: -23.55052,
   longitude: -46.633308,
@@ -28,9 +27,8 @@ const SAO_PAULO_REGION: Region = {
 };
 
 function App(): React.JSX.Element {
-  // --- ESTADOS ---
   const [markers, setMarkers] = useState<MarkerData[]>([]);
-  const [isListVisible, setListVisible] = useState(false); // Para controlar a lista overlay
+  const [isListVisible, setListVisible] = useState(false);
   const [nearbyPoints, setNearbyPoints] = useState<NearbyPointData[]>([]);
   const [isLoadingList, setIsLoadingList] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
@@ -39,11 +37,8 @@ function App(): React.JSX.Element {
   const [formTitle, setFormTitle] = useState('');
   const [formMaterials, setFormMaterials] = useState<string[]>([]);
 
-  // MUDANÇA 2: Criamos uma referência para o nosso MapView
   const mapRef = useRef<MapView>(null);
 
-  // --- FUNÇÕES DE BUSCA DE DADOS ---
-  // MUDANÇA PRINCIPAL: Movemos as funções para fora do useEffect
   const fetchEcopontos = async () => {
     try {
       const response = await fetch(`${API_URL}/ecopontos`);
@@ -55,8 +50,7 @@ function App(): React.JSX.Element {
       Alert.alert("Erro", "Não foi possível carregar os pontos de coleta.");
     }
   };
-  // NOVA FUNÇÃO: Busca os pontos próximos quando o usuário muda para a tela de lista
-  // --- FUNÇÕES HELPER ---
+
   const fetchNearbyPoints = () => {
     setIsLoadingList(true);
     Geolocation.getCurrentPosition(
@@ -81,7 +75,7 @@ function App(): React.JSX.Element {
     );
   };
 
-  // --- LÓGICA DE INICIALIZAÇÃO (BUSCA DE DADOS E GEOLOCALIZAÇÃO) ---
+
   useEffect(() => {
 
     const requestLocationPermission = async () => {
@@ -103,8 +97,7 @@ function App(): React.JSX.Element {
               (position) => {
                 const { latitude, longitude } = position.coords;
                 const userRegion: Region = { latitude, longitude, latitudeDelta: 0.0922, longitudeDelta: 0.0421 };
-                // MUDANÇA 3: Em vez de setar um estado, nós animamos o mapa para a posição do usuário
-                mapRef.current?.animateToRegion(userRegion, 1000); // Anima em 1 segundo
+                mapRef.current?.animateToRegion(userRegion, 1000);
               },
               (error) => { console.log("Erro ao obter localização:", error.code, error.message); },
               { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
@@ -118,36 +111,30 @@ function App(): React.JSX.Element {
       }
     };
 
-    // Chama as funções depois de defini-las
     fetchEcopontos();
     requestLocationPermission();
   }, []);
 
   const handleToggleList = () => {
     if (!isListVisible) {
-      fetchNearbyPoints(); // Busca os pontos só quando abre a lista
+      fetchNearbyPoints();
     }
-    setListVisible(!isListVisible); // Alterna a visibilidade da lista
+    setListVisible(!isListVisible);
   };
 
-  // MUDANÇA 1: Nova função para lidar com o clique em um item da lista
   const handleListItemPress = (item: MarkerData) => {
-    // 1. Fecha a lista
     setListVisible(false);
 
-    // 2. Define a região para onde o mapa deve ir
     const targetRegion: Region = {
       latitude: item.latitude,
       longitude: item.longitude,
-      latitudeDelta: 0.01, // Um zoom um pouco mais próximo
+      latitudeDelta: 0.01,
       longitudeDelta: 0.01,
     };
 
-    // 3. Comanda o mapa para animar até o local
-    mapRef.current?.animateToRegion(targetRegion, 1000); // Anima em 1 segundo
+    mapRef.current?.animateToRegion(targetRegion, 1000);
   };
 
-  // --- FUNÇÕES DE MANIPULAÇÃO DO MODAL E FORMULÁRIO ---
   const closeAndResetModal = () => {
     setEditingMarker(null);
     setFormCoordinate(null);
@@ -212,7 +199,6 @@ function App(): React.JSX.Element {
     );
   };
 
-  // --- FUNÇÕES DE EVENTOS DO MAPA ---
   const handleMapPress = (event: MapPressEvent) => {
     const action = event.nativeEvent.action;
     if (action === 'marker-press' || action === 'callout-press') return;
@@ -233,17 +219,14 @@ function App(): React.JSX.Element {
     );
   };
 
-  // --- RENDERIZAÇÃO ---
   return (
     <View style={styles.container}>
-      {/* MUDANÇA 4: O Mapa agora é a base, e a lista é uma sobreposição */}
       <MapView
-        ref={mapRef} // Conectamos a referência ao mapa
+        ref={mapRef}
         provider={PROVIDER_GOOGLE}
         style={styles.map}
-        initialRegion={SAO_PAULO_REGION} // O mapa sempre carrega na região padrão
+        initialRegion={SAO_PAULO_REGION}
         onPress={handleMapPress}
-        // MUDANÇA 2: Adicionamos a propriedade para mostrar a bolinha azul de localização
         showsUserLocation={true}
       >
         {markers.map(marker => (
@@ -258,12 +241,10 @@ function App(): React.JSX.Element {
           </Marker>
         ))}
       </MapView>
-      {/* Botão para abrir/fechar a lista de pontos */}
       <Pressable style={styles.listToggleButton} onPress={handleToggleList}>
         <Text style={styles.listToggleButtonText}>{isListVisible ? 'Fechar Lista' : 'Ver Lista'}</Text>
       </Pressable>
 
-      {/* A lista agora é uma sobreposição que aparece quando isListVisible é true */}
       {isListVisible && (
         <View style={styles.listOverlay}>
           {isLoadingList ? (
@@ -273,7 +254,6 @@ function App(): React.JSX.Element {
               data={nearbyPoints}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
-                // MUDANÇA 3: Envolvemos o item da lista em um Pressable para torná-lo clicável
                 <Pressable onPress={() => handleListItemPress(item)}>
                   <View style={styles.listItem}>
                     <Text style={styles.listTitle}>{item.title}</Text>
@@ -311,41 +291,13 @@ function App(): React.JSX.Element {
   );
 }
 
-// ESTILOS ATUALIZADOS
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { ...StyleSheet.absoluteFillObject },
-  // Estilo para o botão de abrir a lista
-  listToggleButton: {
-    position: 'absolute',
-    top: 60,
-    left: 20,
-    backgroundColor: 'white',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    elevation: 5, // Sombra no Android
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  listToggleButtonText: {
-    fontWeight: 'bold',
-    color: '#007bff'
-  },
 
-  // Estilo para a sobreposição da lista
-  listOverlay: {
-    position: 'absolute',
-    top: 120,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#f0f0f0',
-    padding: 10,
-  },
-
+  listToggleButton: { position: 'absolute', top: 60, left: 20, backgroundColor: 'white', paddingVertical: 10, paddingHorizontal: 15, borderRadius: 20, elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84, },
+  listToggleButtonText: { fontWeight: 'bold', color: '#007bff' },
+  listOverlay: { position: 'absolute', top: 120, left: 0, right: 0, bottom: 0, backgroundColor: '#f0f0f0', padding: 10 },
   listItem: { backgroundColor: '#fff', padding: 15, marginBottom: 10, borderRadius: 8 },
   listTitle: { fontSize: 18, fontWeight: 'bold' },
   listMaterials: { fontSize: 14, color: 'gray', marginTop: 5 },
