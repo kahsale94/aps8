@@ -17,6 +17,7 @@ interface NearbyPointData extends MarkerData {
   distance: number;
 }
 
+//Seu endereço de API do FireBase
 const API_URL = 'https://us-central1-ecoponto-aps8.cloudfunctions.net/api';
 
 const SAO_PAULO_REGION: Region = {
