@@ -14,7 +14,7 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 const app = express();
 
-app.use(cors({ origin: true }));
+app.use(cors({origin: true}));
 app.use(express.json());
 
 interface EcopontoData {
